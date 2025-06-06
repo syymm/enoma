@@ -2,31 +2,66 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import PixelCard from '../components/PixelCard';
 
-const galleries = [
-  { id: 1, title: '山水画集', thumbnail: '/file.svg', color: 'from-emerald-400 to-teal-600' },
-  { id: 2, title: '動物写真', thumbnail: '/globe.svg', color: 'from-orange-400 to-pink-600' },
-  { id: 3, title: '都市風景', thumbnail: '/window.svg', color: 'from-purple-400 to-indigo-600' },
-  { id: 4, title: '抽象芸術', thumbnail: '/file.svg', color: 'from-yellow-400 to-orange-600' },
-  { id: 5, title: '風景写真', thumbnail: '/globe.svg', color: 'from-blue-400 to-cyan-600' },
-  { id: 6, title: '人物画', thumbnail: '/window.svg', color: 'from-rose-400 to-pink-600' },
+interface GalleryItem {
+  id: number;
+  title: string;
+  thumbnail: string;
+  color: string;
+  price: string;
+}
+
+interface ComicItem {
+  id: string;
+  title: string;
+  thumbnail: string;
+  color: string;
+  price: string;
+}
+
+type ItemType = GalleryItem | ComicItem;
+
+const galleries: GalleryItem[] = [
+  { id: 1, title: '山水画集', thumbnail: '/file.svg', color: 'from-emerald-400 to-teal-600', price: '100' },
+  { id: 2, title: '動物写真', thumbnail: '/globe.svg', color: 'from-orange-400 to-pink-600', price: '200' },
+  { id: 3, title: '都市風景', thumbnail: '/window.svg', color: 'from-purple-400 to-indigo-600', price: '150' },
+  { id: 4, title: '抽象芸術', thumbnail: '/file.svg', color: 'from-yellow-400 to-orange-600', price: '300' },
+  { id: 5, title: '風景写真', thumbnail: '/globe.svg', color: 'from-blue-400 to-cyan-600', price: '180' },
+  { id: 6, title: '人物画', thumbnail: '/window.svg', color: 'from-rose-400 to-pink-600', price: '250' },
 ];
 
-const comics = [
-  { id: 'a', title: '第1話：始まり', thumbnail: '/next.svg', color: 'from-red-400 to-rose-600' },
-  { id: 'b', title: '第2話：冒険', thumbnail: '/vercel.svg', color: 'from-indigo-400 to-purple-600' },
-  { id: 'c', title: '第3話：謎', thumbnail: '/next.svg', color: 'from-green-400 to-emerald-600' },
-  { id: 'd', title: '第4話：決戦', thumbnail: '/vercel.svg', color: 'from-amber-400 to-orange-600' },
+const comics: ComicItem[] = [
+  { id: 'a', title: '第1話：始まり', thumbnail: '/next.svg', color: 'from-red-400 to-rose-600', price: '50' },
+  { id: 'b', title: '第2話：冒険', thumbnail: '/vercel.svg', color: 'from-indigo-400 to-purple-600', price: '50' },
+  { id: 'c', title: '第3話：謎', thumbnail: '/next.svg', color: 'from-green-400 to-emerald-600', price: '50' },
+  { id: 'd', title: '第4話：決戦', thumbnail: '/vercel.svg', color: 'from-amber-400 to-orange-600', price: '60' },
 ];
 
 export default function MainPage() {
-  const [activeTab, setActiveTab] = useState('gallery');
-  const [hoveredCard, setHoveredCard] = useState<string | number | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('gallery');
+  const [likedItems, setLikedItems] = useState<Set<string | number>>(new Set());
 
   const tabs = [
     { id: 'gallery', label: 'ギャラリー', data: galleries, icon: '🎨' },
     { id: 'comics', label: '漫画', data: comics, icon: '📚' },
   ];
+
+  const handleLike = (itemId: string | number): void => {
+    setLikedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleBuy = (item: ItemType): void => {
+    alert(`購入: ${item.title} - ¥${item.price}`);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
@@ -113,75 +148,18 @@ export default function MainPage() {
                   {tab.data.map((item, index) => (
                     <div
                       key={item.id}
-                      className="group relative"
-                      onMouseEnter={() => setHoveredCard(item.id)}
-                      onMouseLeave={() => setHoveredCard(null)}
                       style={{
                         animationDelay: `${index * 100}ms`
                       }}
                     >
-                      {/* 卡片主体 */}
-                      <div className={`
-                        relative overflow-hidden rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20
-                        transform transition-all duration-500 cursor-pointer
-                        ${hoveredCard === item.id 
-                          ? 'scale-105 rotate-1 shadow-2xl shadow-purple-500/20' 
-                          : 'hover:scale-102 hover:shadow-xl hover:shadow-black/20'
-                        }
-                      `}>
-                      {/* 渐变背景 */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-20 group-hover:opacity-30 transition-opacity duration-500`}></div>
-                      
-                        {/* 图片区域 */}
-                        <div className="relative h-40 sm:h-48 overflow-hidden">
-                          <img
-                            src={item.thumbnail}
-                            alt={item.title}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                          
-                          {/* 悬浮时的装饰元素 */}
-                          {hoveredCard === item.id && (
-                            <div className="absolute top-4 right-4 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center animate-bounce">
-                              <span className="text-white text-xl">✨</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* 标题区域 */}
-                        <div className="relative p-4 sm:p-6">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-white font-bold text-sm sm:text-lg leading-tight flex-1 mr-2">
-                              {item.title}
-                            </h3>
-                            <div className={`
-                              w-3 h-3 rounded-full bg-gradient-to-r ${item.color}
-                              transform transition-all duration-500
-                              ${hoveredCard === item.id ? 'scale-150 animate-pulse' : ''}
-                            `}></div>
-                          </div>
-                          
-                          {/* 进度条装饰 */}
-                          <div className="mt-4 h-1 bg-white/10 rounded-full overflow-hidden">
-                            <div className={`
-                              h-full bg-gradient-to-r ${item.color} rounded-full
-                              transform transition-all duration-1000 ease-out
-                              ${hoveredCard === item.id ? 'w-full' : 'w-1/3'}
-                            `}></div>
-                          </div>
-                        </div>
-                        
-                        {/* 光效 */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 transform translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000"></div>
-                      </div>
-
-                      {/* 悬浮阴影 */}
-                      <div className={`
-                        absolute inset-0 bg-gradient-to-br ${item.color} rounded-3xl blur-xl opacity-0 -z-10
-                        transition-opacity duration-500 transform scale-95
-                        ${hoveredCard === item.id ? 'opacity-20' : ''}
-                      `}></div>
+                      <PixelCard
+                        title={item.title}
+                        thumbnail={item.thumbnail}
+                        price={item.price}
+                        isLiked={likedItems.has(item.id)}
+                        onLike={() => handleLike(item.id)}
+                        onBuy={() => handleBuy(item)}
+                      />
                     </div>
                   ))}
                 </div>
