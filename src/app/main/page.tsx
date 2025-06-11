@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import PixelCard from '../components/PixelCard';
+import PixelCard from '../../components/PixelCard';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from '../../i18n';
 

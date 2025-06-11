@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRequireAuth } from '../../hooks/useRequireAuth';
-import { LoginModal } from '../../components/auth/LoginModal';
+import { useRequireAuth } from '../hooks/useRequireAuth';
+import { LoginModal } from './auth/LoginModal';
 
 const PixelCard = ({ 
   title, 
