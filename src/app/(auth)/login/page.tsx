@@ -1,0 +1,70 @@
+'use client';
+
+import { useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '../../../contexts/AuthContext';
+import { LoginForm } from '../../../components/auth/LoginForm';
+import { useTranslation } from '../../../i18n';
+
+function LoginPageContent() {
+  const { t } = useTranslation('ja');
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(returnTo || '/');
+    }
+  }, [isAuthenticated, router, returnTo]);
+
+  const handleLoginSuccess = () => {
+    setTimeout(() => {
+      router.push(returnTo || '/');
+    }, 1000);
+  };
+
+  return (
+    <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 shadow-2xl">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">
+          {t('auth.loginTitle')}
+        </h1>
+        <p className="text-white/70">
+          {t('auth.loginSubtitle')}
+        </p>
+      </div>
+
+      <LoginForm onSuccess={handleLoginSuccess} />
+
+      <div className="mt-6 text-center">
+        <Link
+          href="/register"
+          className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+        >
+          {t('auth.forgotPassword')}
+        </Link>
+      </div>
+
+      <div className="mt-6 text-center text-sm text-white/70">
+        {t('auth.registerPrompt')}{' '}
+        <Link
+          href={`/register${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
+          className="text-purple-400 hover:text-purple-300 transition-colors"
+        >
+          {t('auth.registerLink')}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="text-white">Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
+  );
+}

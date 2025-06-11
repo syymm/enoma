@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import PixelCard from '../components/PixelCard';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from '../../i18n';
 
 interface GalleryItem {
   id: number;
@@ -41,6 +43,8 @@ const comics: ComicItem[] = [
 export default function MainPage() {
   const [activeTab, setActiveTab] = useState<string>('gallery');
   const [likedItems, setLikedItems] = useState<Set<string | number>>(new Set());
+  const { user, isAuthenticated, logout } = useAuth();
+  const { t } = useTranslation('ja');
 
   const tabs = [
     { id: 'gallery', label: 'ギャラリー', data: galleries, icon: '🎨' },
@@ -85,19 +89,36 @@ export default function MainPage() {
                 絵の間
               </div>
             </div>
-            <nav className="flex space-x-3 sm:space-x-4">
-              <Link
-                href="/login"
-                className="px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm bg-white/10 border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
-              >
-                ログイン
-              </Link>
-              <Link
-                href="/register"
-                className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-purple-500/25 text-sm sm:text-base"
-              >
-                新規登録
-              </Link>
+            <nav className="flex items-center space-x-3 sm:space-x-4">
+              {isAuthenticated ? (
+                <>
+                  <div className="flex items-center space-x-2 text-white/90">
+                    <span className="text-sm sm:text-base">こんにちは、</span>
+                    <span className="font-semibold">{user?.name || user?.email}</span>
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm bg-white/10 border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
+                  >
+                    ログアウト
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm bg-white/10 border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
+                  >
+                    {t('auth.login')}
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-purple-500/25 text-sm sm:text-base"
+                  >
+                    {t('auth.register')}
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </header>

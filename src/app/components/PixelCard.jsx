@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useRequireAuth } from '../../hooks/useRequireAuth';
+import { LoginModal } from '../../components/auth/LoginModal';
 
 const PixelCard = ({ 
   title, 
@@ -11,6 +13,7 @@ const PixelCard = ({
   isLiked = false 
 }) => {
   const [hovered, setHovered] = useState(false);
+  const { requireAuth, isModalOpen, handleModalClose, handleLoginSuccess } = useRequireAuth();
 
   return (
     <div 
@@ -62,7 +65,7 @@ const PixelCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onLike && onLike();
+              requireAuth(() => onLike && onLike());
             }}
             className={`
               flex-1 flex items-center justify-center space-x-1 sm:space-x-2
@@ -88,7 +91,7 @@ const PixelCard = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onBuy && onBuy();
+              requireAuth(() => onBuy && onBuy());
             }}
             className={`
               flex-1 flex items-center justify-center space-x-1 sm:space-x-2
@@ -119,6 +122,14 @@ const PixelCard = ({
         transform translate-x-1 translate-y-1 -z-10 transition-all duration-200
         ${hovered ? 'translate-x-2 translate-y-2' : ''}
       `}></div>
+      
+      {/* Login Modal */}
+      <LoginModal
+        open={isModalOpen}
+        onClose={handleModalClose}
+        onSuccess={handleLoginSuccess}
+        locale="ja"
+      />
     </div>
   );
 };
