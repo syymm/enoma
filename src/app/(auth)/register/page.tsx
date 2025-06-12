@@ -16,13 +16,13 @@ function RegisterPageContent() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push(returnTo || '/');
+      router.push(returnTo || '/main');
     }
   }, [isAuthenticated, router, returnTo]);
 
   const handleRegisterSuccess = () => {
     setTimeout(() => {
-      router.push(returnTo || '/');
+      router.push(returnTo || '/main');
     }, 1000);
   };
 
