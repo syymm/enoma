@@ -8,6 +8,7 @@ const PixelCard = ({
   title, 
   thumbnail, 
   price, 
+  likesCount = 0,
   onLike, 
   onBuy,
   isLiked = false 
@@ -84,7 +85,10 @@ const PixelCard = ({
             `}>
               {isLiked ? '♥' : '♡'}
             </div>
-            <span className="text-xs sm:text-sm font-bold">LIKE</span>
+            <div className="flex flex-col items-center">
+              <span className="text-xs sm:text-sm font-bold">LIKE</span>
+              <span className="text-xs text-gray-400">{likesCount}</span>
+            </div>
           </button>
           
           {/* 价格按钮 */}

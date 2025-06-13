@@ -12,6 +12,7 @@ interface GalleryItem {
   thumbnail: string;
   color: string;
   price: string;
+  likesCount: number;
 }
 
 interface ComicItem {
@@ -20,29 +21,31 @@ interface ComicItem {
   thumbnail: string;
   color: string;
   price: string;
+  likesCount: number;
 }
 
 type ItemType = GalleryItem | ComicItem;
 
 const galleries: GalleryItem[] = [
-  { id: 1, title: '山水画集', thumbnail: '/file.svg', color: 'from-emerald-400 to-teal-600', price: '100' },
-  { id: 2, title: '動物写真', thumbnail: '/globe.svg', color: 'from-orange-400 to-pink-600', price: '200' },
-  { id: 3, title: '都市風景', thumbnail: '/window.svg', color: 'from-purple-400 to-indigo-600', price: '150' },
-  { id: 4, title: '抽象芸術', thumbnail: '/file.svg', color: 'from-yellow-400 to-orange-600', price: '300' },
-  { id: 5, title: '風景写真', thumbnail: '/globe.svg', color: 'from-blue-400 to-cyan-600', price: '180' },
-  { id: 6, title: '人物画', thumbnail: '/window.svg', color: 'from-rose-400 to-pink-600', price: '250' },
+  { id: 1, title: '山水画集', thumbnail: '/file.svg', color: 'from-emerald-400 to-teal-600', price: '100', likesCount: 42 },
+  { id: 2, title: '動物写真', thumbnail: '/globe.svg', color: 'from-orange-400 to-pink-600', price: '200', likesCount: 128 },
+  { id: 3, title: '都市風景', thumbnail: '/window.svg', color: 'from-purple-400 to-indigo-600', price: '150', likesCount: 73 },
+  { id: 4, title: '抽象芸術', thumbnail: '/file.svg', color: 'from-yellow-400 to-orange-600', price: '300', likesCount: 95 },
+  { id: 5, title: '風景写真', thumbnail: '/globe.svg', color: 'from-blue-400 to-cyan-600', price: '180', likesCount: 167 },
+  { id: 6, title: '人物画', thumbnail: '/window.svg', color: 'from-rose-400 to-pink-600', price: '250', likesCount: 89 },
 ];
 
 const comics: ComicItem[] = [
-  { id: 'a', title: '第1話：始まり', thumbnail: '/next.svg', color: 'from-red-400 to-rose-600', price: '50' },
-  { id: 'b', title: '第2話：冒険', thumbnail: '/vercel.svg', color: 'from-indigo-400 to-purple-600', price: '50' },
-  { id: 'c', title: '第3話：謎', thumbnail: '/next.svg', color: 'from-green-400 to-emerald-600', price: '50' },
-  { id: 'd', title: '第4話：決戦', thumbnail: '/vercel.svg', color: 'from-amber-400 to-orange-600', price: '60' },
+  { id: 'a', title: '第1話：始まり', thumbnail: '/next.svg', color: 'from-red-400 to-rose-600', price: '50', likesCount: 234 },
+  { id: 'b', title: '第2話：冒険', thumbnail: '/vercel.svg', color: 'from-indigo-400 to-purple-600', price: '50', likesCount: 189 },
+  { id: 'c', title: '第3話：謎', thumbnail: '/next.svg', color: 'from-green-400 to-emerald-600', price: '50', likesCount: 156 },
+  { id: 'd', title: '第4話：決戦', thumbnail: '/vercel.svg', color: 'from-amber-400 to-orange-600', price: '60', likesCount: 301 },
 ];
 
 export default function MainPage() {
   const [activeTab, setActiveTab] = useState<string>('gallery');
   const [likedItems, setLikedItems] = useState<Set<string | number>>(new Set());
+  const [itemLikeCounts, setItemLikeCounts] = useState<Record<string | number, number>>({});
   const { user, isAuthenticated, logout } = useAuth();
   const { t } = useTranslation('ja');
 
@@ -54,11 +57,20 @@ export default function MainPage() {
   const handleLike = (itemId: string | number): void => {
     setLikedItems(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(itemId)) {
+      const wasLiked = newSet.has(itemId);
+      
+      if (wasLiked) {
         newSet.delete(itemId);
       } else {
         newSet.add(itemId);
       }
+      
+      // 更新点赞数
+      setItemLikeCounts(prevCounts => ({
+        ...prevCounts,
+        [itemId]: (prevCounts[itemId] || 0) + (wasLiked ? -1 : 1)
+      }));
+      
       return newSet;
     });
   };
@@ -177,6 +189,7 @@ export default function MainPage() {
                         title={item.title}
                         thumbnail={item.thumbnail}
                         price={item.price}
+                        likesCount={item.likesCount + (itemLikeCounts[item.id] || 0)}
                         isLiked={likedItems.has(item.id)}
                         onLike={() => handleLike(item.id)}
                         onBuy={() => handleBuy(item)}
