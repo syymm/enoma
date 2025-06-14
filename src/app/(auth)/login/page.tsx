@@ -41,7 +41,7 @@ function LoginPageContent() {
 
       <div className="mt-6 text-center">
         <Link
-          href="/register"
+          href="/forgot-password"
           className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
         >
           {t('auth.forgotPassword')}

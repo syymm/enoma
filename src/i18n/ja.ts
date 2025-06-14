@@ -33,6 +33,26 @@ export const ja = {
     
     // Success
     loginSuccess: 'ログインに成功しました！',
-    redirecting: '元のページに戻ります…'
+    redirecting: '元のページに戻ります…',
+    
+    // Forgot Password
+    forgotPasswordTitle: 'パスワードを忘れた場合',
+    forgotPasswordDescription: 'パスワードリセットのリンクをお送りします',
+    sendResetEmail: 'リセットリンクを送信',
+    emailSent: 'メールを送信しました',
+    checkEmailInstructions: 'パスワードリセットのリンクがメールに送信されました',
+    backToLogin: 'ログイン画面に戻る',
+    
+    // Reset Password
+    resetPasswordTitle: '新しいパスワードを設定',
+    resetPasswordDescription: '新しいパスワードを入力してください',
+    newPasswordPlaceholder: '新しいパスワード',
+    confirmPasswordPlaceholder: 'パスワードの確認',
+    resetPasswordButton: 'パスワードを更新',
+    passwordResetSuccess: 'パスワードが更新されました',
+    passwordResetSuccessMessage: 'パスワードの更新が完了しました',
+    redirectingToLogin: 'ログイン画面に移動します...',
+    passwordMinLength: 'パスワードは6文字以上で入力してください',
+    passwordsDoNotMatch: 'パスワードが一致しません'
   }
 } as const;

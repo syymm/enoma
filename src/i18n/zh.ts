@@ -33,6 +33,26 @@ export const zh = {
     
     // Success
     loginSuccess: '登录成功！',
-    redirecting: '正在返回原页面…'
+    redirecting: '正在返回原页面…',
+    
+    // Forgot Password
+    forgotPasswordTitle: '忘记密码',
+    forgotPasswordDescription: '我们将向您发送密码重置链接',
+    sendResetEmail: '发送重置链接',
+    emailSent: '邮件已发送',
+    checkEmailInstructions: '密码重置链接已发送到您的邮箱',
+    backToLogin: '返回登录',
+    
+    // Reset Password
+    resetPasswordTitle: '设置新密码',
+    resetPasswordDescription: '请输入您的新密码',
+    newPasswordPlaceholder: '新密码',
+    confirmPasswordPlaceholder: '确认密码',
+    resetPasswordButton: '更新密码',
+    passwordResetSuccess: '密码已更新',
+    passwordResetSuccessMessage: '您的密码已成功更新',
+    redirectingToLogin: '正在跳转到登录页面...',
+    passwordMinLength: '密码至少需要6个字符',
+    passwordsDoNotMatch: '密码不匹配'
   }
 } as const;
