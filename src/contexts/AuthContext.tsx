@@ -16,6 +16,7 @@ interface AuthContextType {
   register: (email: string, password: string, name?: string) => Promise<boolean>;
   logout: () => void;
   loginWithOAuth: (provider: 'google' | 'x') => Promise<boolean>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -103,6 +104,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('auth-user');
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      return response.ok;
+    } catch (error) {
+      console.error('Change password error:', error);
+      return false;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -111,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     loginWithOAuth,
+    changePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
