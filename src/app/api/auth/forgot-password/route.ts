@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../../lib/prisma';
 import crypto from 'crypto';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
@@ -27,8 +25,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    // Generate cryptographically secure reset token
+    const resetToken = crypto.randomBytes(64).toString('hex');
     const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
     // Save reset token to database
@@ -44,8 +42,11 @@ export async function POST(request: NextRequest) {
     // For now, we'll just log the reset token (in production, this should be sent via email)
     const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
     
-    console.log('Password reset link:', resetUrl);
-    console.log('Reset token for testing:', resetToken);
+    // Only log in development environment
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Password reset link:', resetUrl);
+      console.log('Reset token for testing:', resetToken);
+    }
 
     // In production, you would send an email here using a service like:
     // - Nodemailer

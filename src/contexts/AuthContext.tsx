@@ -17,6 +17,7 @@ interface AuthContextType {
   logout: () => void;
   loginWithOAuth: (provider: 'google' | 'x') => Promise<boolean>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  checkAuthStatus: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,33 +26,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for stored auth state on mount
-    const storedUser = localStorage.getItem('auth-user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        localStorage.removeItem('auth-user');
+  // Add a function to check auth status that can be called from anywhere
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch('/api/auth/me', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        return data.user;
+      } else {
+        setUser(null);
+        return null;
       }
+    } catch (error) {
+      console.error('Auth check error:', error);
+      setUser(null);
+      return null;
     }
-    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    // Check for authenticated user via JWT cookie on mount
+    const initAuth = async () => {
+      await checkAuthStatus();
+      setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Simulate API call - replace with your actual API
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       });
 
       if (response.ok) {
-        const userData = await response.json();
-        setUser(userData.user);
-        localStorage.setItem('auth-user', JSON.stringify(userData.user));
-        return true;
+        // After successful login, refresh auth status from server
+        const user = await checkAuthStatus();
+        return !!user;
       }
       return false;
     } catch (error) {
@@ -62,18 +82,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (email: string, password: string, name?: string): Promise<boolean> => {
     try {
-      // Simulate API call - replace with your actual API
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
+        credentials: 'include',
       });
 
       if (response.ok) {
-        const userData = await response.json();
-        setUser(userData.user);
-        localStorage.setItem('auth-user', JSON.stringify(userData.user));
-        return true;
+        // After successful registration, refresh auth status from server
+        const user = await checkAuthStatus();
+        return !!user;
       }
       return false;
     } catch (error) {
@@ -95,13 +114,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include',
+      });
     } catch (error) {
       console.error('Logout error:', error);
     }
     
     setUser(null);
-    localStorage.removeItem('auth-user');
   };
 
   const changePassword = async (currentPassword: string, newPassword: string): Promise<boolean> => {
@@ -110,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword }),
+        credentials: 'include',
       });
 
       return response.ok;
@@ -128,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     loginWithOAuth,
     changePassword,
+    checkAuthStatus,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
