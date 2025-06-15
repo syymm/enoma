@@ -65,13 +65,16 @@ export default function MainPage() {
         newSet.add(itemId);
       }
       
-      // 更新点赞数
-      setItemLikeCounts(prevCounts => ({
+      return newSet;
+    });
+    
+    // 更新点赞数
+    setItemLikeCounts(prevCounts => {
+      const wasLiked = likedItems.has(itemId);
+      return {
         ...prevCounts,
         [itemId]: (prevCounts[itemId] || 0) + (wasLiked ? -1 : 1)
-      }));
-      
-      return newSet;
+      };
     });
   };
 

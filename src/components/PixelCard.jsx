@@ -80,10 +80,20 @@ const PixelCard = ({
           >
             {/* 像素风心形图标 */}
             <div className={`
-              w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs sm:text-sm
-              ${isLiked ? 'text-pink-200' : 'text-gray-400'}
+              w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center
             `}>
-              {isLiked ? '♥' : '♡'}
+              <img 
+                src="/heart.svg" 
+                alt="heart" 
+                className={`
+                  w-full h-full
+                  ${isLiked 
+                    ? 'brightness-110 hue-rotate-15 drop-shadow-sm' 
+                    : 'brightness-75 grayscale opacity-80'
+                  }
+                  transition-all duration-200 hover:scale-110
+                `}
+              />
             </div>
             <div className="flex flex-col items-center">
               <span className="text-xs sm:text-sm font-bold">LIKE</span>
@@ -105,8 +115,19 @@ const PixelCard = ({
             `}
           >
             {/* 像素风金币图标 */}
-            <div className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs sm:text-sm text-yellow-400">
-              ¥
+            <div className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+              <img 
+                src="/coin.svg" 
+                alt="coin" 
+                className={`
+                  w-full h-full
+                  ${hovered 
+                    ? 'brightness-125 saturate-150 drop-shadow-sm scale-110' 
+                    : 'brightness-100 saturate-125'
+                  }
+                  transition-all duration-200 hover:rotate-12
+                `}
+              />
             </div>
             <span className="text-xs sm:text-sm font-bold">{price}</span>
           </button>
