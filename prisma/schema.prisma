@@ -22,6 +22,50 @@ model User {
   resetTokenExpiry      DateTime?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  
+  galleries             Gallery[]
+  comics                Comic[]
 
   @@map("users")
+}
+
+model Gallery {
+  id                    Int      @id @default(autoincrement())
+  title                 String
+  thumbnail             String   // 缩略图URL或路径
+  imageUrl              String   // 完整图片URL或路径
+  color                 String   // 渐变色配置
+  price                 String
+  likesCount            Int      @default(0)
+  description           String?
+  tags                  String[] // 标签数组
+  isPublic              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("galleries")
+}
+
+model Comic {
+  id                    String   @id @default(cuid())
+  title                 String
+  thumbnail             String   // 缩略图URL或路径
+  imageUrl              String   // 完整图片URL或路径
+  color                 String   // 渐变色配置
+  price                 String
+  likesCount            Int      @default(0)
+  episode               Int?     // 第几话
+  description           String?
+  tags                  String[] // 标签数组
+  isPublic              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comics")
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PixelCard from '../../components/PixelCard';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from '../../i18n';
@@ -10,72 +10,184 @@ interface GalleryItem {
   id: number;
   title: string;
   thumbnail: string;
+  imageUrl?: string;
   color: string;
   price: string;
   likesCount: number;
+  description?: string;
+  tags?: string[];
+  isPublic?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  userId?: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 interface ComicItem {
   id: string;
   title: string;
   thumbnail: string;
+  imageUrl?: string;
   color: string;
   price: string;
   likesCount: number;
+  episode?: number;
+  description?: string;
+  tags?: string[];
+  isPublic?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  userId?: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 type ItemType = GalleryItem | ComicItem;
 
-const galleries: GalleryItem[] = [
-  { id: 1, title: '山水画集', thumbnail: '/file.svg', color: 'from-emerald-400 to-teal-600', price: '100', likesCount: 42 },
-  { id: 2, title: '動物写真', thumbnail: '/globe.svg', color: 'from-orange-400 to-pink-600', price: '200', likesCount: 128 },
-  { id: 3, title: '都市風景', thumbnail: '/window.svg', color: 'from-purple-400 to-indigo-600', price: '150', likesCount: 73 },
-  { id: 4, title: '抽象芸術', thumbnail: '/file.svg', color: 'from-yellow-400 to-orange-600', price: '300', likesCount: 95 },
-  { id: 5, title: '風景写真', thumbnail: '/globe.svg', color: 'from-blue-400 to-cyan-600', price: '180', likesCount: 167 },
-  { id: 6, title: '人物画', thumbnail: '/window.svg', color: 'from-rose-400 to-pink-600', price: '250', likesCount: 89 },
+// Mock数据作为示例保留
+const mockGalleries: GalleryItem[] = [
+  { id: -1, title: '【サンプル】山水画集', thumbnail: '/file.svg', color: 'from-emerald-400 to-teal-600', price: '100', likesCount: 42 },
+  { id: -2, title: '【サンプル】動物写真', thumbnail: '/globe.svg', color: 'from-orange-400 to-pink-600', price: '200', likesCount: 128 },
+  { id: -3, title: '【サンプル】都市風景', thumbnail: '/window.svg', color: 'from-purple-400 to-indigo-600', price: '150', likesCount: 73 },
 ];
 
-const comics: ComicItem[] = [
-  { id: 'a', title: '第1話：始まり', thumbnail: '/next.svg', color: 'from-red-400 to-rose-600', price: '50', likesCount: 234 },
-  { id: 'b', title: '第2話：冒険', thumbnail: '/vercel.svg', color: 'from-indigo-400 to-purple-600', price: '50', likesCount: 189 },
-  { id: 'c', title: '第3話：謎', thumbnail: '/next.svg', color: 'from-green-400 to-emerald-600', price: '50', likesCount: 156 },
-  { id: 'd', title: '第4話：決戦', thumbnail: '/vercel.svg', color: 'from-amber-400 to-orange-600', price: '60', likesCount: 301 },
+const mockComics: ComicItem[] = [
+  { id: 'mock-a', title: '【サンプル】第1話：始まり', thumbnail: '/next.svg', color: 'from-red-400 to-rose-600', price: '50', likesCount: 234 },
+  { id: 'mock-b', title: '【サンプル】第2話：冒険', thumbnail: '/vercel.svg', color: 'from-indigo-400 to-purple-600', price: '50', likesCount: 189 },
 ];
 
 export default function MainPage() {
   const [activeTab, setActiveTab] = useState<string>('gallery');
   const [likedItems, setLikedItems] = useState<Set<string | number>>(new Set());
   const [itemLikeCounts, setItemLikeCounts] = useState<Record<string | number, number>>({});
+  const [galleries, setGalleries] = useState<GalleryItem[]>([]);
+  const [comics, setComics] = useState<ComicItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated, logout } = useAuth();
   const { t } = useTranslation('ja');
+
+  // 获取数据
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // 并行获取galleries和comics数据
+        const [galleriesResponse, comicsResponse] = await Promise.all([
+          fetch('/api/gallery?public=true'),
+          fetch('/api/comic?public=true')
+        ]);
+
+        if (!galleriesResponse.ok || !comicsResponse.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const galleriesData = await galleriesResponse.json();
+        const comicsData = await comicsResponse.json();
+
+        // 合并API数据和mock数据
+        setGalleries([...mockGalleries, ...(galleriesData.galleries || [])]);
+        setComics([...mockComics, ...(comicsData.comics || [])]);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('データの取得に失敗しました');
+        // 如果API失败，至少显示mock数据
+        setGalleries(mockGalleries);
+        setComics(mockComics);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const tabs = [
     { id: 'gallery', label: 'ギャラリー', data: galleries, icon: '🎨' },
     { id: 'comics', label: '漫画', data: comics, icon: '📚' },
   ];
 
-  const handleLike = (itemId: string | number): void => {
+  const handleLike = async (itemId: string | number): Promise<void> => {
+    const wasLiked = likedItems.has(itemId);
+    
+    // 乐观更新UI
     setLikedItems(prev => {
       const newSet = new Set(prev);
-      const wasLiked = newSet.has(itemId);
-      
       if (wasLiked) {
         newSet.delete(itemId);
       } else {
         newSet.add(itemId);
       }
-      
       return newSet;
     });
     
-    // 更新点赞数
-    setItemLikeCounts(prevCounts => {
-      const wasLiked = likedItems.has(itemId);
-      return {
+    setItemLikeCounts(prevCounts => ({
+      ...prevCounts,
+      [itemId]: (prevCounts[itemId] || 0) + (wasLiked ? -1 : 1)
+    }));
+
+    // 如果是mock数据（负数ID或以mock-开头），不调用API
+    if (typeof itemId === 'number' && itemId < 0) return;
+    if (typeof itemId === 'string' && itemId.startsWith('mock-')) return;
+
+    try {
+      // 确定是gallery还是comic
+      const isGallery = typeof itemId === 'number';
+      const endpoint = isGallery 
+        ? `/api/gallery/${itemId}/like`
+        : `/api/comic/${itemId}/like`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ increment: !wasLiked }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update likes');
+      }
+
+      const data = await response.json();
+      
+      // 更新实际的点赞数
+      if (isGallery) {
+        setGalleries(prev => prev.map(item => 
+          item.id === itemId ? { ...item, likesCount: data.likesCount } : item
+        ));
+      } else {
+        setComics(prev => prev.map(item => 
+          item.id === itemId ? { ...item, likesCount: data.likesCount } : item
+        ));
+      }
+    } catch (error) {
+      console.error('Error updating likes:', error);
+      // 回滚UI状态
+      setLikedItems(prev => {
+        const newSet = new Set(prev);
+        if (wasLiked) {
+          newSet.add(itemId);
+        } else {
+          newSet.delete(itemId);
+        }
+        return newSet;
+      });
+      
+      setItemLikeCounts(prevCounts => ({
         ...prevCounts,
-        [itemId]: (prevCounts[itemId] || 0) + (wasLiked ? -1 : 1)
-      };
-    });
+        [itemId]: (prevCounts[itemId] || 0) + (wasLiked ? 1 : -1)
+      }));
+    }
   };
 
   const handleBuy = (item: ItemType): void => {
@@ -355,9 +467,38 @@ export default function MainPage() {
             </div>
           </div>
 
+          {/* 错误状态 */}
+          {error && (
+            <div className="max-w-7xl mx-auto mb-8">
+              <div className="backdrop-blur-xl bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center">
+                <div className="w-12 h-12 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
+                  <span className="text-red-400 text-xl">⚠️</span>
+                </div>
+                <p className="text-red-300 mb-2">{error}</p>
+                <p className="text-red-300/60 text-sm">サンプルデータを表示しています</p>
+              </div>
+            </div>
+          )}
+
+          {/* 加载状态 */}
+          {loading && (
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center py-16 sm:py-20">
+                <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center animate-pulse">
+                  <span className="text-2xl sm:text-3xl">🎨</span>
+                </div>
+                <p className="text-white/60 text-lg sm:text-xl mb-2">データを読み込み中...</p>
+                <div className="w-32 h-1 bg-white/20 rounded-full mx-auto overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 内容区域 */}
-          <div className="max-w-7xl mx-auto">
-            {tabs.map((tab) => (
+          {!loading && (
+            <div className="max-w-7xl mx-auto">
+              {tabs.map((tab) => (
               <div
                 key={tab.id}
                 className={`
@@ -402,7 +543,8 @@ export default function MainPage() {
                 )}
               </div>
             ))}
-          </div>
+            </div>
+          )}
 
           {/* 底部装饰 */}
           <div className="mt-12 sm:mt-20 text-center pb-8">
