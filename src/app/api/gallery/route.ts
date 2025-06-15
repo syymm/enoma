@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const isPublic = searchParams.get('public') === 'true';
     const userId = searchParams.get('userId');
     
-    let where: any = {};
+    const where: Record<string, boolean | string> = {};
     
     if (isPublic) {
       where.isPublic = true;

@@ -2,13 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import { ForgotPasswordForm } from '../../../components/auth/ForgotPasswordForm';
+import { use } from 'react';
 
 interface ForgotPasswordPageProps {
-  params: { locale?: string };
+  params: Promise<{ locale?: string }>;
 }
 
 export default function ForgotPasswordPage({ params }: ForgotPasswordPageProps) {
-  const locale = (params.locale as 'ja' | 'zh' | 'en') || 'ja';
+  const resolvedParams = use(params);
+  const locale = (resolvedParams.locale as 'ja' | 'zh') || 'ja';
   const router = useRouter();
 
   const handleBack = () => {

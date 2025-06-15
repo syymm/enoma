@@ -4,11 +4,12 @@ import { verifyJWT } from '../../../../lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
     const comic = await prisma.comic.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         user: {
           select: {
@@ -39,7 +40,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const payload = await verifyJWT(request);
@@ -47,7 +48,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const comicId = params.id;
+    const resolvedParams = await params;
+    const comicId = resolvedParams.id;
     
     // Check if comic exists and belongs to user
     const existingComic = await prisma.comic.findUnique({
@@ -117,7 +119,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const payload = await verifyJWT(request);
@@ -125,7 +127,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const comicId = params.id;
+    const resolvedParams = await params;
+    const comicId = resolvedParams.id;
     
     // Check if comic exists and belongs to user
     const existingComic = await prisma.comic.findUnique({

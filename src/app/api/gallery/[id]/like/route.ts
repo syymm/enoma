@@ -3,10 +3,11 @@ import { prisma } from '../../../../../lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const galleryId = parseInt(params.id);
+    const resolvedParams = await params;
+    const galleryId = parseInt(resolvedParams.id);
     const body = await request.json();
     const { increment } = body; // true for like, false for unlike
 
