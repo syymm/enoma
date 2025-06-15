@@ -97,12 +97,201 @@ export default function MainPage() {
         <header className="backdrop-blur-xl bg-white/10 border-b border-white/20 sticky top-0 z-20">
           <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">絵</span>
+              <div className="relative w-10 h-10 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-400 rounded-xl flex items-center justify-center animate-pulse border border-cyan-400/50">
+                <span 
+                  className="text-white font-black text-lg relative z-10"
+                  style={{
+                    textShadow: '0 0 10px #00ffff, 0 0 20px #ff00ff',
+                    filter: 'drop-shadow(0 0 2px #00ffff)'
+                  }}
+                >
+                  絵
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-pink-400/20 rounded-xl blur-sm"></div>
               </div>
-              <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-                絵の間
+              <div className="relative group">
+                {/* 带抖动效果的标题 */}
+                <div className="text-2xl sm:text-3xl font-bold tracking-wide relative">
+                  <span 
+                    className="relative z-10 text-white tv-flicker"
+                    style={{
+                      textShadow: `
+                        0 0 10px rgba(0, 255, 255, 0.5),
+                        0 0 20px rgba(255, 0, 255, 0.3)
+                      `,
+                      animation: 'tv-flicker 3s infinite ease-in-out'
+                    }}
+                  >
+                    絵の間
+                  </span>
+                  
+                  {/* 轻微的发光底层 */}
+                  <span 
+                    className="absolute top-0 left-0 bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent opacity-60 -z-10"
+                    style={{
+                      transform: 'translate(1px, 1px)',
+                      filter: 'blur(1px)'
+                    }}
+                  >
+                    絵の間
+                  </span>
+                  
+                  {/* 右侧装饰元素 */}
+                  <div className="absolute -right-4 top-1/2 w-0.5 h-6 bg-gradient-to-b from-cyan-400 to-pink-400 opacity-70 -translate-y-1/2"></div>
+                  <div className="absolute -right-6 top-1/2 w-1 h-1 bg-cyan-400 rounded-full opacity-80 -translate-y-1/2 animate-pulse"></div>
+                </div>
+                
+                {/* 扫描线和信号干扰效果 */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {/* 扫描线 */}
+                  <div 
+                    className="absolute inset-0 opacity-40"
+                    style={{
+                      background: `
+                        repeating-linear-gradient(
+                          0deg,
+                          transparent,
+                          transparent 1px,
+                          rgba(0, 255, 255, 0.1) 1px,
+                          rgba(0, 255, 255, 0.1) 2px
+                        )
+                      `,
+                      animation: 'scan-lines 0.1s linear infinite'
+                    }}
+                  />
+                  
+                  {/* 信号干扰条纹 */}
+                  <div 
+                    className="absolute inset-0 opacity-60"
+                    style={{
+                      background: `
+                        linear-gradient(
+                          90deg,
+                          transparent 0%,
+                          rgba(255, 255, 255, 0.1) 10%,
+                          transparent 20%,
+                          transparent 80%,
+                          rgba(0, 255, 255, 0.1) 90%,
+                          transparent 100%
+                        )
+                      `,
+                      animation: 'tv-interference 4s ease-in-out infinite'
+                    }}
+                  />
+                  
+                  {/* 随机条状干扰 */}
+                  <div 
+                    className="absolute inset-0 opacity-30"
+                    style={{
+                      background: `
+                        repeating-linear-gradient(
+                          0deg,
+                          transparent,
+                          transparent 8px,
+                          rgba(255, 255, 255, 0.05) 8px,
+                          rgba(255, 255, 255, 0.05) 12px
+                        )
+                      `,
+                      animation: 'signal-noise 2s steps(20) infinite'
+                    }}
+                  />
+                </div>
+                
+                {/* CSS 动画定义 */}
+                <style jsx>{`
+                  @keyframes tv-flicker {
+                    0%, 100% { 
+                      transform: translate(0, 0);
+                      opacity: 1;
+                    }
+                    2% { 
+                      transform: translate(0.2px, -0.1px);
+                      opacity: 0.98;
+                    }
+                    4% { 
+                      transform: translate(-0.1px, 0.1px);
+                      opacity: 1;
+                    }
+                    10% { 
+                      transform: translate(0.1px, 0);
+                      opacity: 0.99;
+                    }
+                    15% { 
+                      transform: translate(-0.1px, -0.05px);
+                      opacity: 1;
+                    }
+                    50% { 
+                      transform: translate(0, 0);
+                      opacity: 1;
+                    }
+                    52% { 
+                      transform: translate(0.05px, 0.1px);
+                      opacity: 0.97;
+                    }
+                    55% { 
+                      transform: translate(-0.05px, 0);
+                      opacity: 1;
+                    }
+                  }
+                  
+                  @keyframes scan-lines {
+                    0% { transform: translateY(0); }
+                    100% { transform: translateY(2px); }
+                  }
+                  
+                  @keyframes tv-interference {
+                    0%, 100% { 
+                      transform: translateX(0) scaleX(1);
+                      opacity: 0.6;
+                    }
+                    25% { 
+                      transform: translateX(2px) scaleX(0.98);
+                      opacity: 0.3;
+                    }
+                    50% { 
+                      transform: translateX(-1px) scaleX(1.02);
+                      opacity: 0.8;
+                    }
+                    75% { 
+                      transform: translateX(1px) scaleX(0.99);
+                      opacity: 0.4;
+                    }
+                  }
+                  
+                  @keyframes signal-noise {
+                    0%, 100% { 
+                      transform: translateY(0);
+                      opacity: 0.3;
+                    }
+                    10% { 
+                      transform: translateY(-1px);
+                      opacity: 0.1;
+                    }
+                    20% { 
+                      transform: translateY(1px);
+                      opacity: 0.5;
+                    }
+                    30% { 
+                      transform: translateY(0);
+                      opacity: 0.2;
+                    }
+                    40% { 
+                      transform: translateY(-0.5px);
+                      opacity: 0.4;
+                    }
+                    50% { 
+                      transform: translateY(0.5px);
+                      opacity: 0.1;
+                    }
+                  }
+                `}</style>
+                
+                {/* 下方小字效果 */}
+                <div className="text-xs sm:text-sm text-cyan-300/60 font-mono tracking-[0.2em] mt-1 text-center">
+                  <span className="opacity-80">{'>'} GALLERY_SYSTEM.EXE {'<'}</span>
+                </div>
               </div>
+              
             </div>
             <nav className="flex items-center space-x-3 sm:space-x-4">
               {isAuthenticated ? (
