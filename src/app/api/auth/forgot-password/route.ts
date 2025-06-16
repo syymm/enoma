@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 import crypto from 'crypto';
 import { z } from 'zod';
+import { sendEmail, generatePasswordResetEmail } from '../../../../lib/email';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
@@ -38,22 +39,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Send email with reset link
-    // For now, we'll just log the reset token (in production, this should be sent via email)
+    // Send email with reset link
     const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
     
-    // Only log in development environment
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Password reset link:', resetUrl);
-      console.log('Reset token for testing:', resetToken);
+    try {
+      await sendEmail({
+        to: email,
+        subject: '密码重置请求 - Enoma',
+        html: generatePasswordResetEmail(resetUrl)
+      });
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Password reset link:', resetUrl);
+        console.log('Reset token for testing:', resetToken);
+      }
     }
-
-    // In production, you would send an email here using a service like:
-    // - Nodemailer
-    // - SendGrid
-    // - Amazon SES
-    // - Resend
-    // etc.
 
     return NextResponse.json(
       { message: 'If an account with that email exists, a password reset link has been sent.' },

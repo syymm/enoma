@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '../../../../lib/prisma';
 import { comparePassword, hashPassword, verifyToken } from '../../../../lib/auth';
+import { sendEmail, generatePasswordChangeNotificationEmail } from '../../../../lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       where: { id: payload.userId },
       select: {
         id: true,
+        email: true,
         password: true,
       },
     });
@@ -68,6 +70,16 @@ export async function POST(request: NextRequest) {
       where: { id: user.id },
       data: { password: hashedNewPassword },
     });
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: '密码修改通知 - Enoma',
+        html: generatePasswordChangeNotificationEmail()
+      });
+    } catch (emailError) {
+      console.error('Failed to send password change notification email:', emailError);
+    }
 
     return NextResponse.json({
       message: 'Password changed successfully'
