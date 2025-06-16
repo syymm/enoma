@@ -1,12 +1,12 @@
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.EMAIL_PORT || '587'),
+  secure: process.env.EMAIL_SECURE === 'true',
   auth: {
-    user: 'hinatamomo356@gmail.com',
-    pass: 'xfhl cmdt gkmj kulh'
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -19,7 +19,7 @@ export interface EmailOptions {
 export async function sendEmail({ to, subject, html }: EmailOptions): Promise<void> {
   try {
     const info = await transporter.sendMail({
-      from: '"Enoma" <hinatamomo356@gmail.com>',
+      from: `"Enoma" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html
