@@ -94,14 +94,6 @@ export function LoginModal({
               </>
             )}
 
-            <div className="mt-4 text-center">
-              <button
-                onClick={onClose}
-                className="text-white/70 hover:text-white text-sm transition-colors"
-              >
-                {t('auth.later')}
-              </button>
-            </div>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

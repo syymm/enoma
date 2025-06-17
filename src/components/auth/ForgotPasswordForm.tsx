@@ -53,7 +53,7 @@ export function ForgotPasswordForm({
         setIsSubmitted(true);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || t('auth.genericError'));
+        setError(errorData.message || t('auth.genericError'));
       }
     } catch {
       setError(t('auth.genericError'));

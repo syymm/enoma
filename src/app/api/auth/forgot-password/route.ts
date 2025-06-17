@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Always return success to prevent email enumeration attacks
     if (!user) {
       return NextResponse.json(
-        { message: 'If an account with that email exists, a password reset link has been sent.' },
+        { message: 'パスワードリセットリンクをメールで送信しました。' },
         { status: 200 }
       );
     }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: 'If an account with that email exists, a password reset link has been sent.' },
+      { message: 'パスワードリセットリンクをメールで送信しました。' },
       { status: 200 }
     );
   } catch (error) {
@@ -66,13 +66,13 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { message: '有効なメールアドレスを入力してください' },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { message: 'パスワードリセットの要求に失敗しました' },
       { status: 500 }
     );
   }

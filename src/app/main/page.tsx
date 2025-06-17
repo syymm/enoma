@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import PixelCard from '../../components/PixelCard';
+import { LoginModal } from '../../components/auth/LoginModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from '../../i18n';
 
@@ -71,6 +71,8 @@ export default function MainPage() {
   const [comics, setComics] = useState<ComicItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const { t } = useTranslation('ja');
 
@@ -193,6 +195,31 @@ export default function MainPage() {
   const handleBuy = (item: ItemType): void => {
     alert(`購入: ${item.title} - ¥${item.price}`);
   };
+
+  const handleLoginModalClose = () => {
+    setIsLoginModalOpen(false);
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoginModalOpen(false);
+  };
+
+  // 点击外部关闭用户菜单
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isUserMenuOpen) {
+        const target = event.target as Element;
+        if (!target.closest('.user-menu-container')) {
+          setIsUserMenuOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
@@ -407,32 +434,106 @@ export default function MainPage() {
             </div>
             <nav className="flex items-center space-x-3 sm:space-x-4">
               {isAuthenticated ? (
-                <>
-                  <div className="flex items-center space-x-2 text-white/90">
-                    <span className="text-sm sm:text-base">こんにちは、</span>
-                    <span className="font-semibold">{user?.name || user?.email}</span>
-                  </div>
+                <div className="relative user-menu-container">
                   <button
-                    onClick={logout}
-                    className="px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm bg-white/10 border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm bg-white/10 border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
                   >
-                    ログアウト
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                        <span className="text-xs font-bold text-white">
+                          {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <span className="font-medium">{user?.name || user?.email}</span>
+                    </div>
+                    <svg 
+                      className={`w-4 h-4 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
-                </>
+
+                  {/* 下拉菜单 */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                      <div className="py-2">
+                        {/* 用户信息 */}
+                        <div className="px-4 py-3 border-b border-white/10">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                              <span className="text-lg font-bold text-white">
+                                {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-white font-medium text-sm">{user?.name || 'ユーザー'}</p>
+                              <p className="text-white/60 text-xs">{user?.email}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 菜单选项 */}
+                        <div className="py-1">
+                          <a
+                            href="/settings"
+                            className="flex items-center space-x-3 px-4 py-2 text-white/90 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>アカウント設定</span>
+                          </a>
+                          
+                          <a
+                            href="/change-password"
+                            className="flex items-center space-x-3 px-4 py-2 text-white/90 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2m0 0V7a2 2 0 112-2m-6 2a2 2 0 002-2v0a2 2 0 012-2m2 2v2a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2h2z" />
+                            </svg>
+                            <span>パスワード変更</span>
+                          </a>
+
+                          <div className="border-t border-white/10 my-1"></div>
+                          
+                          <button
+                            onClick={() => {
+                              logout();
+                              setIsUserMenuOpen(false);
+                            }}
+                            className="flex items-center space-x-3 px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-sm w-full text-left"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span>ログアウト</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <>
-                  <Link
-                    href="/login"
+                  <button
+                    onClick={() => setIsLoginModalOpen(true)}
                     className="px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm bg-white/10 border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
                   >
                     {t('auth.login')}
-                  </Link>
-                  <Link
-                    href="/register"
+                  </button>
+                  <button
+                    onClick={() => setIsLoginModalOpen(true)}
                     className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-purple-500/25 text-sm sm:text-base"
                   >
                     {t('auth.register')}
-                  </Link>
+                  </button>
                 </>
               )}
             </nav>
@@ -555,6 +656,14 @@ export default function MainPage() {
           </div>
         </main>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        open={isLoginModalOpen}
+        onClose={handleLoginModalClose}
+        onSuccess={handleLoginSuccess}
+        locale="ja"
+      />
     </div>
   );
 }

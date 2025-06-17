@@ -108,6 +108,20 @@ export function LoginForm({
         >
           {isLoading ? '...' : t('auth.loginButton')}
         </button>
+
+        {/* 忘记密码链接 */}
+        <div className="text-center">
+          <a
+            href="/forgot-password"
+            className="text-sm text-purple-400 hover:text-purple-300 transition-colors underline"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = '/forgot-password';
+            }}
+          >
+            パスワードを忘れた方はこちら
+          </a>
+        </div>
       </form>
 
       {showOAuth && (

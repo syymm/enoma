@@ -57,7 +57,7 @@ export function ResetPasswordForm({
         },
         body: JSON.stringify({
           token,
-          password: data.password,
+          newPassword: data.password,
         }),
       });
 
@@ -68,7 +68,7 @@ export function ResetPasswordForm({
         }, 2000);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || t('auth.genericError'));
+        setError(errorData.message || t('auth.genericError'));
       }
     } catch {
       setError(t('auth.genericError'));

@@ -7,13 +7,13 @@ const prisma = new PrismaClient();
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
-  password: z.string().min(6),
+  newPassword: z.string().min(6),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { token, password } = resetPasswordSchema.parse(body);
+    const { token, newPassword } = resetPasswordSchema.parse(body);
 
     // Find user with valid reset token
     const user = await prisma.user.findFirst({
@@ -27,13 +27,13 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid or expired reset token' },
+        { message: '無効または期限切れのリセットトークンです' },
         { status: 400 }
       );
     }
 
     // Hash the new password
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(newPassword);
 
     // Update user password and clear reset token
     await prisma.user.update({
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: 'Password has been reset successfully' },
+      { message: 'パスワードが正常にリセットされました' },
       { status: 200 }
     );
   } catch (error) {
@@ -54,13 +54,13 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid input data' },
+        { message: '入力データが無効です' },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { message: 'パスワードのリセットに失敗しました' },
       { status: 500 }
     );
   }
