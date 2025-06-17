@@ -53,6 +53,10 @@ export const ja = {
     passwordResetSuccessMessage: 'パスワードの更新が完了しました',
     redirectingToLogin: 'ログイン画面に移動します...',
     passwordMinLength: 'パスワードは6文字以上で入力してください',
-    passwordsDoNotMatch: 'パスワードが一致しません'
+    passwordsDoNotMatch: 'パスワードが一致しません',
+    
+    // Skip login
+    skipLogin: 'ログインをスキップして続行',
+    browseContinue: '作品を見る'
   }
 } as const;

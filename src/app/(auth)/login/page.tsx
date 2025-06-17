@@ -57,6 +57,18 @@ function LoginPageContent() {
           {t('auth.registerLink')}
         </Link>
       </div>
+
+      <div className="mt-8 pt-6 border-t border-white/20 text-center">
+        <Link
+          href="/main"
+          className="inline-block px-6 py-2 text-white/80 hover:text-white border border-white/30 hover:border-white/50 rounded-lg transition-all duration-200 hover:bg-white/10"
+        >
+          {t('auth.browseContinue')}
+        </Link>
+        <p className="text-xs text-white/50 mt-2">
+          {t('auth.skipLogin')}
+        </p>
+      </div>
     </div>
   );
 }
