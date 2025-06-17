@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendEmail({
         to: email,
-        subject: '密码重置请求 - Enoma',
+        subject: 'パスワードリセット要求 - Enoma',
         html: generatePasswordResetEmail(resetUrl)
       });
     } catch (emailError) {

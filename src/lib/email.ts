@@ -38,7 +38,7 @@ export function generatePasswordResetEmail(resetUrl: string): string {
     <html>
       <head>
         <meta charset="utf-8">
-        <title>密码重置</title>
+        <title>パスワードリセット</title>
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -53,34 +53,34 @@ export function generatePasswordResetEmail(resetUrl: string): string {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🔐 密码重置请求</h1>
+            <h1>🔐 パスワードリセット要求</h1>
           </div>
           <div class="content">
-            <p>您好，</p>
-            <p>我们收到了您的密码重置请求。请点击下面的按钮来重置您的密码：</p>
+            <p>こんにちは、</p>
+            <p>パスワードリセットのリクエストを受け取りました。以下のボタンをクリックしてパスワードをリセットしてください：</p>
             
             <div style="text-align: center;">
-              <a href="${resetUrl}" class="button">重置密码</a>
+              <a href="${resetUrl}" class="button">パスワードをリセット</a>
             </div>
             
             <div class="warning">
-              <strong>⚠️ 重要提醒：</strong>
+              <strong>⚠️ 重要なお知らせ：</strong>
               <ul>
-                <li>此链接将在1小时后过期</li>
-                <li>如果您没有请求密码重置，请忽略此邮件</li>
-                <li>为了您的账户安全，请不要将此链接分享给他人</li>
+                <li>このリンクは1時間後に期限切れになります</li>
+                <li>パスワードリセットを要求していない場合は、このメールを無視してください</li>
+                <li>アカウントのセキュリティのため、このリンクを他人と共有しないでください</li>
               </ul>
             </div>
             
-            <p>如果按钮无法点击，请复制以下链接到浏览器地址栏：</p>
+            <p>ボタンがクリックできない場合は、以下のリンクをブラウザのアドレスバーにコピーしてください：</p>
             <p style="word-break: break-all; background: #f0f0f0; padding: 10px; border-radius: 5px;">${resetUrl}</p>
             
-            <p>如有任何疑问，请随时联系我们的客服团队。</p>
+            <p>ご質問がございましたら、いつでもカスタマーサポートチームにお問い合わせください。</p>
             
-            <p>谢谢！<br>Enoma 团队</p>
+            <p>ありがとうございます！<br>Enoma チーム</p>
           </div>
           <div class="footer">
-            <p>此邮件是系统自动发送，请勿回复。</p>
+            <p>このメールは自動送信されています。返信はしないでください。</p>
           </div>
         </div>
       </body>
@@ -94,7 +94,7 @@ export function generatePasswordChangeNotificationEmail(): string {
     <html>
       <head>
         <meta charset="utf-8">
-        <title>密码修改通知</title>
+        <title>パスワード変更通知</title>
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -107,27 +107,27 @@ export function generatePasswordChangeNotificationEmail(): string {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🔐 密码修改通知</h1>
+            <h1>🔐 パスワード変更通知</h1>
           </div>
           <div class="content">
-            <p>您好，</p>
-            <p>您的账户密码已成功修改。</p>
+            <p>こんにちは、</p>
+            <p>お客様のアカウントのパスワードが正常に変更されました。</p>
             
             <div class="alert">
-              <strong>⚠️ 重要提醒：</strong>
+              <strong>⚠️ 重要なお知らせ：</strong>
               <ul>
-                <li>修改时间：${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</li>
-                <li>如果这不是您本人的操作，请立即联系我们的客服团队</li>
-                <li>为了账户安全，请定期更换密码</li>
+                <li>変更時刻：${new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })}</li>
+                <li>この操作に心当たりがない場合は、すぐにカスタマーサポートチームにご連絡ください</li>
+                <li>アカウントのセキュリティのため、定期的にパスワードを変更してください</li>
               </ul>
             </div>
             
-            <p>如有任何疑问，请随时联系我们的客服团队。</p>
+            <p>ご質問がございましたら、いつでもカスタマーサポートチームにお問い合わせください。</p>
             
-            <p>谢谢！<br>Enoma 团队</p>
+            <p>ありがとうございます！<br>Enoma チーム</p>
           </div>
           <div class="footer">
-            <p>此邮件是系统自动发送，请勿回复。</p>
+            <p>このメールは自動送信されています。返信はしないでください。</p>
           </div>
         </div>
       </body>

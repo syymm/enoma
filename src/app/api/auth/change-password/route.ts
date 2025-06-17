@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendEmail({
         to: user.email,
-        subject: '密码修改通知 - Enoma',
+        subject: 'パスワード変更通知 - Enoma',
         html: generatePasswordChangeNotificationEmail()
       });
     } catch (emailError) {
