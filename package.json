@@ -9,7 +9,8 @@
     "lint": "next lint",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "create-admin": "node scripts/create-admin.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

@@ -37,12 +37,14 @@ export async function POST(request: NextRequest) {
         id: true,
         email: true,
         name: true,
+        role: true,
       },
     });
 
     const token = signToken({
       userId: user.id,
       email: user.email,
+      role: user.role,
     });
 
     const response = NextResponse.json({

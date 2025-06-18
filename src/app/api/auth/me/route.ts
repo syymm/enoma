@@ -29,6 +29,7 @@ export async function GET() {
         id: true,
         email: true,
         name: true,
+        role: true,
       },
     });
 
@@ -44,6 +45,7 @@ export async function GET() {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
       },
     });
   } catch (error) {

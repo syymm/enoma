@@ -13,6 +13,7 @@ const jwtSecret: string = JWT_SECRET;
 export interface JWTPayload {
   userId: string;
   email: string;
+  role: string;
 }
 
 export function signToken(payload: JWTPayload): string {
@@ -36,7 +37,7 @@ export async function comparePassword(password: string, hashedPassword: string):
 }
 
 export function verifyJWT(request: NextRequest): JWTPayload | null {
-  const token = request.cookies.get('token')?.value || 
+  const token = request.cookies.get('auth-token')?.value || 
                 request.headers.get('authorization')?.replace('Bearer ', '');
   
   if (!token) {
@@ -44,4 +45,14 @@ export function verifyJWT(request: NextRequest): JWTPayload | null {
   }
   
   return verifyToken(token);
+}
+
+export function requireAdmin(request: NextRequest): JWTPayload | null {
+  const payload = verifyJWT(request);
+  
+  if (!payload || payload.role !== 'ADMIN') {
+    return null;
+  }
+  
+  return payload;
 }
