@@ -5,22 +5,29 @@ import { useRequireAuth } from '../hooks/useRequireAuth';
 import { LoginModal } from './auth/LoginModal';
 
 const PixelCard = ({ 
+  id,
   title, 
   thumbnail, 
   price, 
   likesCount = 0,
   onLike, 
   onBuy,
-  isLiked = false 
+  isLiked = false,
+  type = 'gallery'
 }) => {
   const [hovered, setHovered] = useState(false);
   const { requireAuth, isModalOpen, handleModalClose, handleLoginSuccess } = useRequireAuth();
+
+  const handleCardClick = () => {
+    window.location.href = `/${type}/${id}`;
+  };
 
   return (
     <div 
       className="group relative pixel-card"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={handleCardClick}
     >
       {/* 主卡片容器 - 像素风格 */}
       <div className={`
@@ -30,8 +37,15 @@ const PixelCard = ({
         ${hovered ? 'transform -translate-y-2 scale-105' : ''}
         hover:bg-gray-750
       `}>
+        {/* 标题区域 - 在图片上方 */}
+        <div className="bg-black/90 border-b-2 border-gray-600 px-3 py-2">
+          <h3 className="text-white font-bold text-sm sm:text-base leading-tight font-mono truncate">
+            {title}
+          </h3>
+        </div>
+        
         {/* 展示区域 */}
-        <div className="relative h-32 sm:h-40 bg-gray-700 border-b-4 border-gray-600 overflow-hidden">
+        <div className="relative h-48 sm:h-56 lg:h-64 bg-gray-700 border-b-4 border-gray-600 overflow-hidden">
           <img
             src={thumbnail}
             alt={title}
@@ -43,15 +57,6 @@ const PixelCard = ({
           
           {/* 像素风格覆盖层 */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
-          
-          {/* 标题显示在图片上方 */}
-          <div className="absolute top-2 left-2 right-2">
-            <div className="bg-black/70 border-2 border-gray-500 px-2 py-1 backdrop-blur-sm">
-              <h3 className="text-white font-bold text-xs sm:text-sm leading-tight font-mono truncate">
-                {title}
-              </h3>
-            </div>
-          </div>
           
           {/* 悬浮时的像素装饰 */}
           {hovered && (

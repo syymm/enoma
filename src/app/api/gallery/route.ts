@@ -8,12 +8,22 @@ export async function GET(request: NextRequest) {
     const isPublic = searchParams.get('public') === 'true';
     const userId = searchParams.get('userId');
     
-    const where: Record<string, boolean | string> = {};
+    // Check if user is admin for admin panel requests
+    const payload = verifyJWT(request);
+    const isAdminRequest = payload && payload.role === 'ADMIN' && !isPublic && !userId;
+    
+    const where: Record<string, any> = {};
     
     if (isPublic) {
       where.isPublic = true;
     } else if (userId) {
       where.userId = userId;
+    } else if (isAdminRequest) {
+      // Admin can see their own content (both public and private)
+      where.userId = payload.userId;
+    } else {
+      // Default to public only for unauthorized requests
+      where.isPublic = true;
     }
 
     const galleries = await prisma.gallery.findMany({

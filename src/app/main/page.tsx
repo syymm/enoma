@@ -10,7 +10,7 @@ interface GalleryItem {
   id: number;
   title: string;
   thumbnail: string;
-  imageUrl?: string;
+  imageUrls?: string[];
   color: string;
   price: string;
   likesCount: number;
@@ -31,7 +31,7 @@ interface ComicItem {
   id: string;
   title: string;
   thumbnail: string;
-  imageUrl?: string;
+  imageUrls?: string[];
   color: string;
   price: string;
   likesCount: number;
@@ -636,6 +636,7 @@ export default function MainPage() {
                       }}
                     >
                       <PixelCard
+                        id={item.id}
                         title={item.title}
                         thumbnail={item.thumbnail}
                         price={item.price}
@@ -643,6 +644,7 @@ export default function MainPage() {
                         isLiked={likedItems.has(item.id)}
                         onLike={() => handleLike(item.id)}
                         onBuy={() => handleBuy(item)}
+                        type={tab.id === 'gallery' ? 'gallery' : 'comic'}
                       />
                     </div>
                   ))}

@@ -13,7 +13,7 @@ export default function AdminUpload() {
     color: '#000000',
     episode: '',
   });
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -26,16 +26,16 @@ export default function AdminUpload() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!file) {
-      setMessage('Please select a file');
+    if (files.length === 0) {
+      setMessage('Please select at least one file');
       return;
     }
 
@@ -44,7 +44,9 @@ export default function AdminUpload() {
 
     try {
       const submitData = new FormData();
-      submitData.append('file', file);
+      files.forEach(file => {
+        submitData.append('files', file);
+      });
       submitData.append('title', formData.title);
       submitData.append('description', formData.description);
       submitData.append('price', formData.price);
@@ -74,9 +76,9 @@ export default function AdminUpload() {
           color: '#000000',
           episode: '',
         });
-        setFile(null);
+        setFiles([]);
         // Reset file input
-        const fileInput = document.getElementById('file') as HTMLInputElement;
+        const fileInput = document.getElementById('files') as HTMLInputElement;
         if (fileInput) fileInput.value = '';
       } else {
         setMessage(result.error || 'Upload failed');
@@ -96,17 +98,30 @@ export default function AdminUpload() {
         <div className="bg-white rounded-lg shadow p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="file" className="block text-sm font-medium text-gray-700">
-                Image File *
+              <label htmlFor="files" className="block text-sm font-medium text-gray-700">
+                Image Files * (可选择多个文件)
               </label>
               <input
                 type="file"
-                id="file"
+                id="files"
                 accept="image/*"
+                multiple
                 onChange={handleFileChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                 required
               />
+              {files.length > 0 && (
+                <div className="mt-2 text-sm text-gray-600">
+                  已选择 {files.length} 个文件
+                  <ul className="mt-1 space-y-1">
+                    {files.map((file, index) => (
+                      <li key={index} className="text-xs text-gray-500">
+                        {index + 1}. {file.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div>
@@ -118,7 +133,7 @@ export default function AdminUpload() {
                 name="type"
                 value={formData.type}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                 required
               >
                 <option value="gallery">Gallery</option>
@@ -136,7 +151,7 @@ export default function AdminUpload() {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                 required
               />
             </div>
@@ -152,7 +167,7 @@ export default function AdminUpload() {
                 value={formData.price}
                 onChange={handleInputChange}
                 placeholder="e.g., $9.99, Free, ¥500"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                 required
               />
             </div>
@@ -168,7 +183,7 @@ export default function AdminUpload() {
                   name="episode"
                   value={formData.episode}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                 />
               </div>
             )}
@@ -183,7 +198,7 @@ export default function AdminUpload() {
                 rows={3}
                 value={formData.description}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               />
             </div>
 
@@ -198,7 +213,7 @@ export default function AdminUpload() {
                 value={formData.tags}
                 onChange={handleInputChange}
                 placeholder="e.g., art, anime, fantasy"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               />
             </div>
 

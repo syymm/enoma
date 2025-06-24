@@ -38,8 +38,8 @@ model User {
 model Gallery {
   id                    Int      @id @default(autoincrement())
   title                 String
-  thumbnail             String   // 缩略图URL或路径
-  imageUrl              String   // 完整图片URL或路径
+  thumbnail             String   // 封面图片URL或路径
+  imageUrls             String[] // 所有图片URL数组
   color                 String   // 渐变色配置
   price                 String
   likesCount            Int      @default(0)
@@ -58,8 +58,8 @@ model Gallery {
 model Comic {
   id                    String   @id @default(cuid())
   title                 String
-  thumbnail             String   // 缩略图URL或路径
-  imageUrl              String   // 完整图片URL或路径
+  thumbnail             String   // 封面图片URL或路径
+  imageUrls             String[] // 所有图片URL数组
   color                 String   // 渐变色配置
   price                 String
   likesCount            Int      @default(0)

@@ -28,7 +28,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ comic });
+    return NextResponse.json(comic);
   } catch (error) {
     console.error('Error fetching comic:', error);
     return NextResponse.json(
@@ -107,7 +107,7 @@ export async function PUT(
       }
     });
 
-    return NextResponse.json({ comic });
+    return NextResponse.json(comic);
   } catch (error) {
     console.error('Error updating comic:', error);
     return NextResponse.json(

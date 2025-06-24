@@ -1,131 +1,129 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import Image from 'next/image';
 
-interface Gallery {
+interface GalleryItem {
   id: number;
   title: string;
-  price: string;
   thumbnail: string;
+  imageUrls: string[];
+  color: string;
+  price: string;
+  likesCount: number;
   description?: string;
-  tags: string[];
-  isPublic: boolean;
+  tags?: string[];
   createdAt: string;
-  user: {
-    name: string;
-    email: string;
-  };
 }
 
-interface Comic {
+interface ComicItem {
   id: string;
   title: string;
-  price: string;
   thumbnail: string;
-  description?: string;
-  tags: string[];
+  imageUrls: string[];
+  color: string;
+  price: string;
+  likesCount: number;
   episode?: number;
-  isPublic: boolean;
+  description?: string;
+  tags?: string[];
   createdAt: string;
-  user: {
-    name: string;
-    email: string;
-  };
 }
 
-interface ContentData {
-  galleries: Gallery[];
-  comics: Comic[];
-  pagination: {
-    page: number;
-    limit: number;
-    totalGalleries: number;
-    totalComics: number;
-    totalPagesGalleries: number;
-    totalPagesComics: number;
-  };
-}
-
-export default function AdminContent() {
-  const [data, setData] = useState<ContentData | null>(null);
+export default function AdminContentPage() {
+  const [galleries, setGalleries] = useState<GalleryItem[]>([]);
+  const [comics, setComics] = useState<ComicItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'gallery' | 'comic'>('all');
-  const [editingItem, setEditingItem] = useState<{ type: string; id: string | number; data: Gallery | Comic } | null>(null);
-
-  const fetchContentCallback = useCallback(fetchContent, [filter]);
+  const [message, setMessage] = useState('');
+  const [activeTab, setActiveTab] = useState<'gallery' | 'comic'>('gallery');
 
   useEffect(() => {
-    fetchContentCallback();
-  }, [fetchContentCallback]);
+    fetchContent();
+  }, []);
 
   const fetchContent = async () => {
     try {
-      const queryParam = filter !== 'all' ? `?type=${filter}` : '';
-      const response = await fetch(`/api/admin/content${queryParam}`, {
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const contentData = await response.json();
-        setData(contentData);
+      setLoading(true);
+      const [galleriesResponse, comicsResponse] = await Promise.all([
+        fetch('/api/gallery', { credentials: 'include' }),
+        fetch('/api/comic', { credentials: 'include' })
+      ]);
+
+      if (galleriesResponse.ok) {
+        const galleriesData = await galleriesResponse.json();
+        setGalleries(galleriesData.galleries || []);
+      }
+
+      if (comicsResponse.ok) {
+        const comicsData = await comicsResponse.json();
+        setComics(comicsData.comics || []);
       }
     } catch (error) {
-      console.error('Failed to fetch content:', error);
+      console.error('Error fetching content:', error);
+      setMessage('コンテンツの取得に失敗しました');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = (type: string, id: string | number, item: Gallery | Comic) => {
-    setEditingItem({ type, id, data: { ...item } });
-  };
-
-  const handleSave = async () => {
-    if (!editingItem) return;
-
-    try {
-      const response = await fetch(`/api/admin/content/${editingItem.type}/${editingItem.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editingItem.data),
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        setEditingItem(null);
-        fetchContent();
-      }
-    } catch (error) {
-      console.error('Failed to update content:', error);
+  const deleteGallery = async (id: number) => {
+    if (!confirm('このギャラリーアイテムを削除しますか？')) {
+      return;
     }
-  };
-
-  const handleDelete = async (type: string, id: string | number) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
 
     try {
-      const response = await fetch(`/api/admin/content/${type}/${id}`, {
+      const response = await fetch(`/api/gallery/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
 
       if (response.ok) {
-        fetchContent();
+        setGalleries(galleries.filter(item => item.id !== id));
+        setMessage('ギャラリーアイテムを削除しました');
+      } else {
+        setMessage('削除に失敗しました');
       }
     } catch (error) {
-      console.error('Failed to delete content:', error);
+      console.error('Error deleting gallery:', error);
+      setMessage('削除中にエラーが発生しました');
     }
+  };
+
+  const deleteComic = async (id: string) => {
+    if (!confirm('このコミックアイテムを削除しますか？')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/comic/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        setComics(comics.filter(item => item.id !== id));
+        setMessage('コミックアイテムを削除しました');
+      } else {
+        setMessage('削除に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error deleting comic:', error);
+      setMessage('削除中にエラーが発生しました');
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ja-JP');
   };
 
   if (loading) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-xl">Loading...</div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">読み込み中...</p>
+          </div>
         </div>
       </AdminLayout>
     );
@@ -133,267 +131,181 @@ export default function AdminContent() {
 
   return (
     <AdminLayout>
-      <div>
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Manage Content</h1>
-          
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-md ${filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setFilter('gallery')}
-              className={`px-4 py-2 rounded-md ${filter === 'gallery' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-            >
-              Galleries
-            </button>
-            <button
-              onClick={() => setFilter('comic')}
-              className={`px-4 py-2 rounded-md ${filter === 'comic' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-            >
-              Comics
-            </button>
+      <div className="max-w-6xl">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Manage Content</h1>
+
+        {message && (
+          <div className={`mb-6 p-4 rounded-md ${
+            message.includes('失敗') || message.includes('エラー') 
+              ? 'bg-red-50 text-red-700 border border-red-200' 
+              : 'bg-green-50 text-green-700 border border-green-200'
+          }`}>
+            {message}
+          </div>
+        )}
+
+        {/* タブ */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('gallery')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'gallery'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                ギャラリー ({galleries.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('comic')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'comic'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                コミック ({comics.length})
+              </button>
+            </nav>
           </div>
         </div>
 
-        {data && (
-          <div className="space-y-8">
-            {/* Galleries */}
-            {(filter === 'all' || filter === 'gallery') && data.galleries.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Galleries ({data.galleries.length})</h2>
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Image
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Title
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Price
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {data.galleries.map((gallery) => (
-                        <tr key={gallery.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Image
-                              src={gallery.thumbnail}
-                              alt={gallery.title}
-                              width={64}
-                              height={64}
-                              className="h-16 w-16 object-cover rounded-lg"
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{gallery.title}</div>
-                            <div className="text-sm text-gray-500">{gallery.tags.join(', ')}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {gallery.price}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              gallery.isPublic ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                            }`}>
-                              {gallery.isPublic ? 'Public' : 'Private'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                              onClick={() => handleEdit('gallery', gallery.id, gallery)}
-                              className="text-blue-600 hover:text-blue-900 mr-4"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete('gallery', gallery.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+        {/* ギャラリー一覧 */}
+        {activeTab === 'gallery' && (
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            {galleries.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">ギャラリーアイテムがありません</p>
               </div>
-            )}
-
-            {/* Comics */}
-            {(filter === 'all' || filter === 'comic') && data.comics.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Comics ({data.comics.length})</h2>
-                <div className="bg-white rounded-lg shadow overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Image
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Title
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Episode
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Price
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {data.comics.map((comic) => (
-                        <tr key={comic.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Image
-                              src={comic.thumbnail}
-                              alt={comic.title}
-                              width={64}
-                              height={64}
-                              className="h-16 w-16 object-cover rounded-lg"
-                            />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{comic.title}</div>
-                            <div className="text-sm text-gray-500">{comic.tags.join(', ')}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {comic.episode || 'N/A'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {comic.price}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              comic.isPublic ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                            }`}>
-                              {comic.isPublic ? 'Public' : 'Private'}
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {galleries.map((item) => (
+                  <div key={item.id} className="p-6 flex items-center space-x-4">
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-medium text-gray-900 truncate">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        価格: {item.price} | いいね: {item.likesCount} | 
+                        画像数: {item.imageUrls?.length || 1} | 
+                        作成日: {formatDate(item.createdAt)}
+                      </p>
+                      {item.description && (
+                        <p className="text-sm text-gray-600 mt-1 truncate">
+                          {item.description}
+                        </p>
+                      )}
+                      {item.tags && item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {item.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
+                            >
+                              {tag}
                             </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                              onClick={() => handleEdit('comic', comic.id, comic)}
-                              className="text-blue-600 hover:text-blue-900 mr-4"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete('comic', comic.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <a
+                        href={`/gallery/${item.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        表示
+                      </a>
+                      <button
+                        onClick={() => deleteGallery(item.id)}
+                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         )}
 
-        {/* Edit Modal */}
-        {editingItem && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold mb-4">Edit {editingItem.type}</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Title</label>
-                  <input
-                    type="text"
-                    value={editingItem.data.title}
-                    onChange={(e) => setEditingItem({
-                      ...editingItem,
-                      data: { ...editingItem.data, title: e.target.value }
-                    })}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Price</label>
-                  <input
-                    type="text"
-                    value={editingItem.data.price}
-                    onChange={(e) => setEditingItem({
-                      ...editingItem,
-                      data: { ...editingItem.data, price: e.target.value }
-                    })}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                {editingItem.type === 'comic' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Episode</label>
-                    <input
-                      type="number"
-                      value={editingItem.data.episode || ''}
-                      onChange={(e) => setEditingItem({
-                        ...editingItem,
-                        data: { ...editingItem.data, episode: parseInt(e.target.value) || null }
-                      })}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        {/* コミック一覧 */}
+        {activeTab === 'comic' && (
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            {comics.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">コミックアイテムがありません</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {comics.map((item) => (
+                  <div key={item.id} className="p-6 flex items-center space-x-4">
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded-lg"
                     />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-medium text-gray-900 truncate">
+                        {item.title}
+                        {item.episode && (
+                          <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            第{item.episode}話
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        価格: {item.price} | いいね: {item.likesCount} | 
+                        ページ数: {item.imageUrls?.length || 1} | 
+                        作成日: {formatDate(item.createdAt)}
+                      </p>
+                      {item.description && (
+                        <p className="text-sm text-gray-600 mt-1 truncate">
+                          {item.description}
+                        </p>
+                      )}
+                      {item.tags && item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {item.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <a
+                        href={`/comic/${item.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        表示
+                      </a>
+                      <button
+                        onClick={() => deleteComic(item.id)}
+                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                      >
+                        削除
+                      </button>
+                    </div>
                   </div>
-                )}
-                
-                <div>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={editingItem.data.isPublic}
-                      onChange={(e) => setEditingItem({
-                        ...editingItem,
-                        data: { ...editingItem.data, isPublic: e.target.checked }
-                      })}
-                      className="mr-2"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Public</span>
-                  </label>
-                </div>
+                ))}
               </div>
-              
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  onClick={() => setEditingItem(null)}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>
