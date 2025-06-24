@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         thumbnail,
-        imageUrl,
+        imageUrls: imageUrl,
         color,
         price,
         description,

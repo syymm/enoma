@@ -10,8 +10,8 @@ async function getContentHandler(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
 
-    let galleries = [];
-    let comics = [];
+    let galleries: any[] = [];
+    let comics: any[] = [];
     let totalGalleries = 0;
     let totalComics = 0;
 

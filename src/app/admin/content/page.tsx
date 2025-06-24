@@ -36,6 +36,7 @@ export default function AdminContentPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState<'gallery' | 'comic'>('gallery');
+  const [expandedGalleries, setExpandedGalleries] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     fetchContent();
@@ -89,6 +90,70 @@ export default function AdminContentPage() {
     }
   };
 
+  const deleteGalleryImage = async (galleryId: number, imageIndex: number) => {
+    if (!confirm('この画像を削除しますか？')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/gallery/${galleryId}/images/${imageIndex}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Update the gallery in the local state
+        setGalleries(galleries.map(gallery => 
+          gallery.id === galleryId 
+            ? { ...gallery, imageUrls: data.gallery.imageUrls, thumbnail: data.gallery.thumbnail }
+            : gallery
+        ));
+        setMessage('画像を削除しました');
+      } else {
+        const errorData = await response.json();
+        setMessage(errorData.error || '削除に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      setMessage('削除中にエラーが発生しました');
+    }
+  };
+
+  const setGalleryThumbnail = async (galleryId: number, imageIndex: number) => {
+    if (!confirm('この画像を封面として設定しますか？')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/gallery/${galleryId}/thumbnail`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageIndex }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Update the gallery in the local state
+        setGalleries(galleries.map(gallery => 
+          gallery.id === galleryId 
+            ? { ...gallery, thumbnail: data.gallery.thumbnail }
+            : gallery
+        ));
+        setMessage('封面を設定しました');
+      } else {
+        const errorData = await response.json();
+        setMessage(errorData.error || '封面の設定に失敗しました');
+      }
+    } catch (error) {
+      console.error('Error setting thumbnail:', error);
+      setMessage('封面設定中にエラーが発生しました');
+    }
+  };
+
   const deleteComic = async (id: string) => {
     if (!confirm('このコミックアイテムを削除しますか？')) {
       return;
@@ -114,6 +179,16 @@ export default function AdminContentPage() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ja-JP');
+  };
+
+  const toggleGalleryExpansion = (galleryId: number) => {
+    const newExpanded = new Set(expandedGalleries);
+    if (newExpanded.has(galleryId)) {
+      newExpanded.delete(galleryId);
+    } else {
+      newExpanded.add(galleryId);
+    }
+    setExpandedGalleries(newExpanded);
   };
 
   if (loading) {
@@ -182,55 +257,119 @@ export default function AdminContentPage() {
             ) : (
               <div className="divide-y divide-gray-200">
                 {galleries.map((item) => (
-                  <div key={item.id} className="p-6 flex items-center space-x-4">
-                    <img
-                      src={item.thumbnail}
-                      alt={item.title}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-medium text-gray-900 truncate">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        価格: {item.price} | いいね: {item.likesCount} | 
-                        画像数: {item.imageUrls?.length || 1} | 
-                        作成日: {formatDate(item.createdAt)}
-                      </p>
-                      {item.description && (
-                        <p className="text-sm text-gray-600 mt-1 truncate">
-                          {item.description}
+                  <div key={item.id} className="p-6">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={item.thumbnail}
+                        alt={item.title}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-medium text-gray-900 truncate">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          価格: {item.price} | いいね: {item.likesCount} | 
+                          画像数: {item.imageUrls?.length || 1} | 
+                          作成日: {formatDate(item.createdAt)}
                         </p>
-                      )}
-                      {item.tags && item.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {item.tags.map((tag, index) => (
-                            <span
-                              key={index}
-                              className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
-                            >
-                              {tag}
-                            </span>
+                        {item.description && (
+                          <p className="text-sm text-gray-600 mt-1 truncate">
+                            {item.description}
+                          </p>
+                        )}
+                        {item.tags && item.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {item.tags.map((tag, index) => (
+                              <span
+                                key={index}
+                                className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {item.imageUrls && item.imageUrls.length > 1 && (
+                          <button
+                            onClick={() => toggleGalleryExpansion(item.id)}
+                            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                          >
+                            {expandedGalleries.has(item.id) ? '画像を隠す' : '画像を表示'}
+                          </button>
+                        )}
+                        <a
+                          href={`/gallery/${item.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        >
+                          表示
+                        </a>
+                        <button
+                          onClick={() => deleteGallery(item.id)}
+                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                        >
+                          削除
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* 展开的图片网格 */}
+                    {expandedGalleries.has(item.id) && item.imageUrls && item.imageUrls.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">画像一覧</h4>
+                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                          {item.imageUrls.map((imageUrl, index) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={imageUrl}
+                                alt={`${item.title} - Image ${index + 1}`}
+                                className={`w-full h-20 object-cover rounded-lg border-2 ${
+                                  item.thumbnail === imageUrl 
+                                    ? 'border-blue-500 border-solid' 
+                                    : 'border-gray-200'
+                                }`}
+                              />
+                              
+                              {/* 操作按钮容器 */}
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <div className="flex space-x-1">
+                                  <button
+                                    onClick={() => setGalleryThumbnail(item.id, index)}
+                                    className="w-7 h-7 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
+                                    title="封面に設定"
+                                  >
+                                    📷
+                                  </button>
+                                  <button
+                                    onClick={() => deleteGalleryImage(item.id, index)}
+                                    className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
+                                    title="画像を削除"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* 图片序号 */}
+                              <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                                {index + 1}
+                              </div>
+
+                              {/* 封面标识 */}
+                              {item.thumbnail === imageUrl && (
+                                <div className="absolute top-1 left-1 bg-blue-500 text-white text-xs px-1 rounded">
+                                  封面
+                                </div>
+                              )}
+                            </div>
                           ))}
                         </div>
-                      )}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <a
-                        href={`/gallery/${item.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                      >
-                        表示
-                      </a>
-                      <button
-                        onClick={() => deleteGallery(item.id)}
-                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
-                      >
-                        削除
-                      </button>
-                    </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

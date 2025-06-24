@@ -6,10 +6,11 @@ import { JWTPayload } from '../../../../../../lib/auth';
 async function updateContentHandler(
   request: NextRequest, 
   adminPayload: JWTPayload,
-  { params }: { params: { type: string; id: string } }
+  { params }: { params: Promise<{ type: string; id: string }> }
 ) {
   try {
-    const { type, id } = params;
+    const resolvedParams = await params;
+    const { type, id } = resolvedParams;
     const data = await request.json();
 
     if (type !== 'gallery' && type !== 'comic') {
@@ -65,10 +66,11 @@ async function updateContentHandler(
 async function deleteContentHandler(
   request: NextRequest,
   adminPayload: JWTPayload,
-  { params }: { params: { type: string; id: string } }
+  { params }: { params: Promise<{ type: string; id: string }> }
 ) {
   try {
-    const { type, id } = params;
+    const resolvedParams = await params;
+    const { type, id } = resolvedParams;
 
     if (type !== 'gallery' && type !== 'comic') {
       return NextResponse.json(
