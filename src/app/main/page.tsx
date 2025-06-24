@@ -76,6 +76,24 @@ export default function MainPage() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { t } = useTranslation('ja');
 
+  // 从localStorage加载点赞状态
+  useEffect(() => {
+    const savedLikes = localStorage.getItem('likedItems');
+    if (savedLikes) {
+      try {
+        const likedArray = JSON.parse(savedLikes);
+        setLikedItems(new Set(likedArray));
+      } catch (error) {
+        console.error('Error loading liked items from localStorage:', error);
+      }
+    }
+  }, []);
+
+  // 保存点赞状态到localStorage
+  useEffect(() => {
+    localStorage.setItem('likedItems', JSON.stringify(Array.from(likedItems)));
+  }, [likedItems]);
+
   // 获取数据
   useEffect(() => {
     const fetchData = async () => {
@@ -121,7 +139,7 @@ export default function MainPage() {
   const handleLike = async (itemId: string | number): Promise<void> => {
     const wasLiked = likedItems.has(itemId);
     
-    // 乐观更新UI
+    // 更新点赞状态
     setLikedItems(prev => {
       const newSet = new Set(prev);
       if (wasLiked) {
@@ -131,64 +149,34 @@ export default function MainPage() {
       }
       return newSet;
     });
-    
+
+    // 更新本地计数
     setItemLikeCounts(prevCounts => ({
       ...prevCounts,
       [itemId]: (prevCounts[itemId] || 0) + (wasLiked ? -1 : 1)
     }));
 
-    // 如果是mock数据（负数ID或以mock-开头），不调用API
+    // 如果是mock数据，不调用API
     if (typeof itemId === 'number' && itemId < 0) return;
     if (typeof itemId === 'string' && itemId.startsWith('mock-')) return;
 
+    // 对真实数据，调用API更新服务器计数（但UI状态由本地管理）
     try {
-      // 确定是gallery还是comic
       const isGallery = typeof itemId === 'number';
       const endpoint = isGallery 
         ? `/api/gallery/${itemId}/like`
         : `/api/comic/${itemId}/like`;
 
-      const response = await fetch(endpoint, {
+      await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ increment: !wasLiked }),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to update likes');
-      }
-
-      const data = await response.json();
-      
-      // 更新实际的点赞数
-      if (isGallery) {
-        setGalleries(prev => prev.map(item => 
-          item.id === itemId ? { ...item, likesCount: data.likesCount } : item
-        ));
-      } else {
-        setComics(prev => prev.map(item => 
-          item.id === itemId ? { ...item, likesCount: data.likesCount } : item
-        ));
-      }
     } catch (error) {
-      console.error('Error updating likes:', error);
-      // 回滚UI状态
-      setLikedItems(prev => {
-        const newSet = new Set(prev);
-        if (wasLiked) {
-          newSet.add(itemId);
-        } else {
-          newSet.delete(itemId);
-        }
-        return newSet;
-      });
-      
-      setItemLikeCounts(prevCounts => ({
-        ...prevCounts,
-        [itemId]: (prevCounts[itemId] || 0) + (wasLiked ? 1 : -1)
-      }));
+      console.error('Error updating likes on server:', error);
+      // 服务器错误不影响UI，因为我们使用本地状态
     }
   };
 
