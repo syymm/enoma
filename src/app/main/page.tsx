@@ -55,12 +55,12 @@ type ItemType = GalleryItem | ComicItem;
 const mockGalleries: GalleryItem[] = [
   { id: -1, title: '【サンプル】山水画集', thumbnail: '/file.svg', color: 'from-emerald-400 to-teal-600', price: '100', likesCount: 42 },
   { id: -2, title: '【サンプル】動物写真', thumbnail: '/globe.svg', color: 'from-orange-400 to-pink-600', price: '200', likesCount: 128 },
-  { id: -3, title: '【サンプル】都市風景', thumbnail: '/window.svg', color: 'from-purple-400 to-indigo-600', price: '150', likesCount: 73 },
+  { id: -3, title: '【サンプル】都市風景', thumbnail: '/window.svg', color: 'from-rose-400 to-pink-600', price: '150', likesCount: 73 },
 ];
 
 const mockComics: ComicItem[] = [
   { id: 'mock-a', title: '【サンプル】第1話：始まり', thumbnail: '/next.svg', color: 'from-red-400 to-rose-600', price: '50', likesCount: 234 },
-  { id: 'mock-b', title: '【サンプル】第2話：冒険', thumbnail: '/vercel.svg', color: 'from-indigo-400 to-purple-600', price: '50', likesCount: 189 },
+  { id: 'mock-b', title: '【サンプル】第2話：冒険', thumbnail: '/vercel.svg', color: 'from-pink-400 to-rose-600', price: '50', likesCount: 189 },
 ];
 
 export default function MainPage() {
@@ -210,12 +210,12 @@ export default function MainPage() {
   }, [isUserMenuOpen]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-rose-900 to-slate-900 overflow-hidden">
       {/* 装饰性背景 */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-slate-900/50"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-rose-900/50 to-slate-900/50"></div>
       </div>
 
       {/* 主要内容容器 */}
@@ -224,17 +224,17 @@ export default function MainPage() {
         <header className="backdrop-blur-xl bg-white/10 border-b border-white/20 sticky top-0 z-20">
           <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center space-x-3">
-              <div className="relative w-10 h-10 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-400 rounded-xl flex items-center justify-center animate-pulse border border-cyan-400/50">
+              <div className="relative w-10 h-10 bg-gradient-to-r from-rose-400 via-pink-500 to-fuchsia-400 rounded-xl flex items-center justify-center animate-pulse border border-rose-400/50">
                 <span 
                   className="text-white font-black text-lg relative z-10"
                   style={{
-                    textShadow: '0 0 10px #00ffff, 0 0 20px #ff00ff',
-                    filter: 'drop-shadow(0 0 2px #00ffff)'
+                    textShadow: '0 0 10px #fb7185, 0 0 20px #ec4899',
+                    filter: 'drop-shadow(0 0 2px #fb7185)'
                   }}
                 >
                   絵
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-pink-400/20 rounded-xl blur-sm"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-rose-400/20 to-fuchsia-400/20 rounded-xl blur-sm"></div>
               </div>
               <div className="relative group">
                 {/* 带抖动效果的标题 */}
@@ -243,8 +243,8 @@ export default function MainPage() {
                     className="relative z-10 text-white tv-flicker"
                     style={{
                       textShadow: `
-                        0 0 10px rgba(0, 255, 255, 0.5),
-                        0 0 20px rgba(255, 0, 255, 0.3)
+                        0 0 10px rgba(251, 113, 133, 0.5),
+                        0 0 20px rgba(236, 72, 153, 0.3)
                       `,
                       animation: 'tv-flicker 3s infinite ease-in-out'
                     }}
@@ -254,7 +254,7 @@ export default function MainPage() {
                   
                   {/* 轻微的发光底层 */}
                   <span 
-                    className="absolute top-0 left-0 bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent opacity-60 -z-10"
+                    className="absolute top-0 left-0 bg-gradient-to-r from-rose-400 to-fuchsia-400 bg-clip-text text-transparent opacity-60 -z-10"
                     style={{
                       transform: 'translate(1px, 1px)',
                       filter: 'blur(1px)'
@@ -264,8 +264,8 @@ export default function MainPage() {
                   </span>
                   
                   {/* 右侧装饰元素 */}
-                  <div className="absolute -right-4 top-1/2 w-0.5 h-6 bg-gradient-to-b from-cyan-400 to-pink-400 opacity-70 -translate-y-1/2"></div>
-                  <div className="absolute -right-6 top-1/2 w-1 h-1 bg-cyan-400 rounded-full opacity-80 -translate-y-1/2 animate-pulse"></div>
+                  <div className="absolute -right-4 top-1/2 w-0.5 h-6 bg-gradient-to-b from-rose-400 to-fuchsia-400 opacity-70 -translate-y-1/2"></div>
+                  <div className="absolute -right-6 top-1/2 w-1 h-1 bg-rose-400 rounded-full opacity-80 -translate-y-1/2 animate-pulse"></div>
                 </div>
                 
                 {/* 扫描线和信号干扰效果 */}
@@ -279,8 +279,8 @@ export default function MainPage() {
                           0deg,
                           transparent,
                           transparent 1px,
-                          rgba(0, 255, 255, 0.1) 1px,
-                          rgba(0, 255, 255, 0.1) 2px
+                          rgba(251, 113, 133, 0.1) 1px,
+                          rgba(251, 113, 133, 0.1) 2px
                         )
                       `,
                       animation: 'scan-lines 0.1s linear infinite'
@@ -298,7 +298,7 @@ export default function MainPage() {
                           rgba(255, 255, 255, 0.1) 10%,
                           transparent 20%,
                           transparent 80%,
-                          rgba(0, 255, 255, 0.1) 90%,
+                          rgba(251, 113, 133, 0.1) 90%,
                           transparent 100%
                         )
                       `,
@@ -414,7 +414,7 @@ export default function MainPage() {
                 `}</style>
                 
                 {/* 下方小字效果 */}
-                <div className="text-xs sm:text-sm text-cyan-300/60 font-mono tracking-[0.2em] mt-1 text-center">
+                <div className="text-xs sm:text-sm text-rose-300/60 font-mono tracking-[0.2em] mt-1 text-center">
                   <span className="opacity-80">{'>'} GALLERY_SYSTEM.EXE {'<'}</span>
                 </div>
               </div>
@@ -428,7 +428,7 @@ export default function MainPage() {
                     className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 backdrop-blur-sm bg-white/10 border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
                   >
                     <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                      <div className="w-6 h-6 bg-gradient-to-r from-rose-400 to-fuchsia-400 rounded-full flex items-center justify-center">
                         <span className="text-xs font-bold text-white">
                           {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
                         </span>
@@ -452,7 +452,7 @@ export default function MainPage() {
                         {/* 用户信息 */}
                         <div className="px-4 py-3 border-b border-white/10">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-gradient-to-r from-rose-400 to-fuchsia-400 rounded-full flex items-center justify-center">
                               <span className="text-lg font-bold text-white">
                                 {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
                               </span>
@@ -534,7 +534,7 @@ export default function MainPage() {
                   </button>
                   <button
                     onClick={() => setIsLoginModalOpen(true)}
-                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-purple-500/25 text-sm sm:text-base"
+                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-white hover:from-rose-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-rose-500/25 text-sm sm:text-base"
                   >
                     {t('auth.register')}
                   </button>
@@ -556,7 +556,7 @@ export default function MainPage() {
                     className={`
                       relative flex items-center justify-center space-x-2 sm:space-x-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-500
                       ${activeTab === tab.id
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25'
+                        ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/25'
                         : 'text-white/70 hover:text-white hover:bg-white/10'
                       }
                     `}
@@ -564,7 +564,7 @@ export default function MainPage() {
                     <span className="text-lg sm:text-xl">{tab.icon}</span>
                     <span className="text-sm sm:text-lg whitespace-nowrap">{tab.label}</span>
                     {activeTab === tab.id && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl blur-xl opacity-30 -z-10"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-rose-400 to-pink-400 rounded-xl blur-xl opacity-30 -z-10"></div>
                     )}
                   </button>
                 ))}
@@ -589,12 +589,12 @@ export default function MainPage() {
           {loading && (
             <div className="max-w-7xl mx-auto">
               <div className="text-center py-16 sm:py-20">
-                <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center animate-pulse">
+                <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full flex items-center justify-center animate-pulse">
                   <span className="text-2xl sm:text-3xl">🎨</span>
                 </div>
                 <p className="text-white/60 text-lg sm:text-xl mb-2">データを読み込み中...</p>
                 <div className="w-32 h-1 bg-white/20 rounded-full mx-auto overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-pulse"></div>
+                  <div className="w-full h-full bg-gradient-to-r from-rose-400 to-pink-400 rounded-full animate-pulse"></div>
                 </div>
               </div>
             </div>
@@ -641,7 +641,7 @@ export default function MainPage() {
                 {/* 空状态 */}
                 {tab.data.length === 0 && (
                   <div className="text-center py-16 sm:py-20">
-                    <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full flex items-center justify-center">
                       <span className="text-2xl sm:text-3xl">📁</span>
                     </div>
                     <p className="text-white/60 text-lg sm:text-xl mb-2">まだコンテンツがありません</p>
