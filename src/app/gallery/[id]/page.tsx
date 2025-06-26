@@ -100,9 +100,9 @@ export default function GalleryDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-rose-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center animate-pulse">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full flex items-center justify-center animate-pulse">
             <span className="text-2xl">🎨</span>
           </div>
           <p className="text-white/60 text-lg">読み込み中...</p>
@@ -113,7 +113,7 @@ export default function GalleryDetailPage() {
 
   if (error || !item) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-rose-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
             <span className="text-2xl text-red-400">⚠️</span>
@@ -121,7 +121,7 @@ export default function GalleryDetailPage() {
           <p className="text-red-300 text-lg mb-4">{error || 'ギャラリーアイテムが見つかりません'}</p>
           <button
             onClick={() => router.push('/main')}
-            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
+            className="px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full text-white hover:from-rose-600 hover:to-pink-600 transition-all duration-300"
           >
             メインページに戻る
           </button>
@@ -131,11 +131,12 @@ export default function GalleryDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-rose-900 to-slate-900">
       {/* 装饰性背景 */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-rose-900/50 to-slate-900/50"></div>
       </div>
 
       {/* 主要内容 */}
